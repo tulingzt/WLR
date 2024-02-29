@@ -55,5 +55,6 @@ extern lqr_t lqr[2];
 void WLR_Init(void);
 void WLR_Protest(void);
 void WLR_Control(void);
+void K_Array_Update(float K[2][6], float high_set);
 
 #endif

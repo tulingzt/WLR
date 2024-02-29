@@ -28,10 +28,25 @@ float LegCanChange = 0.20f;
 float x3_balance_zero = 0.00, x5_balance_zero = -0.075f;//腿摆角角度偏置 机体俯仰角度偏置
 
 //								位移		速度	角度	角速度  角度	角速度
-float K_Array_Leg[2][6] =		{{0, 10, 80, 8, 300, 10},
-								{ 0, -0.7, -8, -1, 3, 2}};
-float K_Array_Fly[2][6] =		{{0, 0, 80, 10, 0, 0},
-	                            { 0, 0, 0, 0, 0, 0}};
+float K_Array_Leg[2][6] =		{{0, 10, 80, 8, 300, 10}, { 0, -0.7, -8, -1, 3, 2}};
+float K_Array_Fly[2][6] =		{{0, 0, 80, 10, 0, 0}, { 0, 0, 0, 0, 0, 0}};
+float K_Array_test[2][6];
+float K_Array_List[12][4] = {{0.797097,-2.15505,1.83349,0.370208},
+                            {27.8285,-75.0203,63.5743,13.2001},
+                            {18.0587,186.706,-705.858,761.812},
+                            {1.63162,33.6432,-91.428,85.1404},
+                            {2.88994,478.703,-1173.57,1038.},
+                            {-3.89182,63.0659,-150.771,131.948},
+                            {-0.0267526,-1.84735,4.54192,-4.0202},
+                            {-0.949843,-64.5161,158.061,-139.728},
+                            {-0.141779,-188.896,214.882,-110.629},
+                            {0.114695,-16.1936,-31.1215,37.3942},
+                            {40.7147,-106.452,87.1307,22.1354},
+                            {5.19391,-10.7512,6.66148,3.99882}};
+//float K_Array_Leg[2][6] =       
+//{{1.89031, 15.0355, 78.4889, 10.3368, 250.04, 
+//  8.76237}, {-0.146364, -1.18306, -13.2436, -1.57301, 11.6865, 
+//  1.90347}};
 //				100				{{0, 15, 40, 5, 120, 5},		{{0, 15, 40, 5, 120, 5},		{{0, 20, 120, 10, 300, 7},
 //				-10				{ 0, 0, -20, 0, 30, 3}};       { 0, -0.7, -20, -2, 35, 3}};    { 0, -0.5, -10, -1, 10, 2}};
 //																								正常起立
@@ -53,6 +68,20 @@ static float WLR_Fn_Calc(float az, float Fy_fdb, float T0_fdb, float L0[3], floa
 					+ L0[0] * theta[2] * sinf(theta[0])
 					+ L0[0] * powf(theta[1], 2) * cosf(theta[0]);//轮子竖直方向的加速度
 	return Fwy + mw * GRAVITY + mw * yw_ddot;
+}
+
+void K_Array_Update(float K[2][6], float high_set)
+{
+    for(int i = 0; i < 2; i++)
+    {
+        for(int j = 0; j < 6; j++)
+        {
+            K[i][j] = K_Array_List[i * 6 + j][0] + 
+                      K_Array_List[i * 6 + j][1] * high_set +
+                      K_Array_List[i * 6 + j][2] * high_set * high_set +
+                      K_Array_List[i * 6 + j][3] * high_set * high_set * high_set;
+        }
+    }
 }
 
 //float test_p=500,test_i=1.5,test_d=8000,test_iout=10,test_oout=20;
@@ -233,7 +262,7 @@ void WLR_Control(void)
 //		pid_leg_length[i].i_max = test_iout;
 //		pid_leg_length[i].out_max = test_oout;
 		//腿部虚拟力控制
-		if(wlr.jump_flag == 2 || wlr.jump_flag == 4)												//跳跃蹬腿阶段 响应要大
+		if(wlr.jump_flag == 2 || wlr.jump_flag == 4)						//跳跃蹬腿阶段 响应要大
 			wlr.side[i].Fy = PID_Calc(&pid_leg_length_fast[i], tlm.l_ref[i], vmc[i].L_fdb)\
 								+ mb * GRAVITY / 2 + WLR_SIGN(i) * wlr.roll_offs;
 		else if(wlr.jump_flag == 3)											//跳跃收腿阶段 响应要大

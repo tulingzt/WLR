@@ -90,9 +90,10 @@ static void Chassis_Init(void)
 	joint_motor[1].zero_point = 0.78;
 	joint_motor[2].zero_point = 0.77;
 	joint_motor[3].zero_point = 0.65;
-//	PID_Init(&pid_yaw, 0, 0, 0, 0, 1);
+	PID_Init(&pid_yaw, 5, 0, 0, 0, 5);
 	WLR_Init();
 	Joint_Motor_Reset();
+    wlr.yaw_set = imu.yaw;
 }
 
 //底盘数据输入更新
@@ -117,31 +118,31 @@ static void Chassis_Data_Input(void)
 	else
 		wlr.stop_mode = 0;
 
-	if(rc.sw2 == RC_UP)			//加速
-		wlr.high_mode = 1;//大高度
+	if(rc.sw2 == RC_UP)         //大高度
+		wlr.high_mode = 1;
 	else
 		wlr.high_mode = 0;
-//	if()
-//		wlr.high_mode = 0;		//小高度
-//	else
-//		wlr.high_mode = 1;		//大高度
 	
 	if(rc.ch5 == 660)			//跳跃
 		wlr.jump_flag = 1;
 	//控制数据输入
-	wlr.wz_set = -(float)rc.ch1/660*4;
+    if(wlr.control_mode == 0)
+	{
+		wlr.yaw_set = imu.yaw;
+		wlr.wz_set = 0;
+	}
+	else
+	{
+		wlr.yaw_set -= (float)rc.ch1/660/100;
+        if(wlr.yaw_set < 0)
+            wlr.yaw_set += 2 * PI;
+        else if(wlr.yaw_set > 2 * PI)
+            wlr.yaw_set -= 2 * PI;
+		wlr.wz_set = PID_Calc(&pid_yaw, wlr.yaw_set, wlr.yaw_set - Circle_Error(&wlr.yaw_set, &imu.yaw, PI));
+	}
+//	wlr.wz_set = -(float)rc.ch1/660*4;
 	wlr.v_set = (float)rc.ch2/660*4;
 	//陀螺仪数据输入
-//	if(wlr.control_mode == 0)
-//	{
-//		wlr.yaw_set = imu.yaw;
-//		wlr.wz_set = 0;
-//	}
-//	else
-//	{
-//		wlr.yaw_set -= (float)rc.ch1/660/100;
-//		wlr.wz_set = PID_Calc(&pid_yaw, wlr.yaw_set, imu.yaw);
-//	}
 	wlr.roll_fdb	=  -imu.roll;
 	wlr.pit_fdb		=  imu.pitch;
 	wlr.wy_fdb		=  imu.wy;

@@ -32,6 +32,7 @@
 //#include "usart.h"
 //#include "us_tim.h"
 //#include "printf.h"
+#include "wlr.h"
 #include "chassis_task.h"
 /* USER CODE END Includes */
 
@@ -177,7 +178,6 @@ void StartDefaultTask(void const * argument)
 //	HTmotor_SendControlPara(&joint_motor[3]);
 //	  
 //	DJImotor_SendControlTorque();
-
 	osDelayUntil(&thread_wake_time, 1);
   }
   /* USER CODE END StartDefaultTask */

@@ -260,12 +260,22 @@
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>joint_motor[0]</ItemText>
+          <ItemText>high_set</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>joint_motor</ItemText>
+          <ItemText>K_Array_test</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>K_Array_List</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>pid_yaw</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>
