@@ -3,6 +3,9 @@
 #include "data_scope.h"
 #include "stdint.h"
 
+#include "wlr.h"
+#include "Timu_driver.h"
+
 uint8_t debug_wave = 1;
 
 void DataWavePkg(void)
@@ -11,8 +14,8 @@ void DataWavePkg(void)
 	{
 		case 1:
 		{
-//			DataScope_Get_Channel_Data(imu_data.pitch);
-//			DataScope_Get_Channel_Data(imu_data.wy);
+			DataScope_Get_Channel_Data(wlr.yaw_set);
+			DataScope_Get_Channel_Data(imu.yaw);
 			break;
 		}
 		default:break;

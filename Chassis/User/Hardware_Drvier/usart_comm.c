@@ -8,34 +8,43 @@ void USART_Comm_Init(void)
 {
 	__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
 	__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-	HAL_UART_Receive_DMA(&DBUS_HUART, dbus_dma_rx_buf, 2 * DT7_DATA_LEN);
+	HAL_UART_Receive_DMA(&DBUS_HUART, dbus_dma_rx_buf, DT7_DATA_LEN);
 }
 
-//全满中断 接收数据在buff后半段
-//调用数据处理函数，若数据错误，开启空闲中断，重新对齐数据
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-	if(huart == &DBUS_HUART)
-	{
-		if(DT7control_Receive(&rc, &dbus_dma_rx_buf[DT7_DATA_LEN]))
-		{
-			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
-			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-		}
-	}
-}
+////全满中断 接收数据在buff后半段
+////调用数据处理函数，若数据错误，开启空闲中断，重新对齐数据
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	if(huart == &DBUS_HUART)
+//	{
+//		if(DT7control_Receive(&rc, &dbus_dma_rx_buf[DT7_DATA_LEN]))
+//		{
+//			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
+//			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
+//		}
+//	}
+//}
 
-//半满中断 接收数据在buff前半段
-//调用数据处理函数，若数据错误，开启空闲中断，重新对齐数据
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+////半满中断 接收数据在buff前半段
+////调用数据处理函数，若数据错误，开启空闲中断，重新对齐数据
+//void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	if(huart == &DBUS_HUART)
+//	{
+//		if(DT7control_Receive(&rc, &dbus_dma_rx_buf[0]))
+//		{
+//			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
+//			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
+//		}
+//	}
+//}
+
+void USART_User_IDLECallback(UART_HandleTypeDef *huart)
 {
-	if(huart == &DBUS_HUART)
+    if(huart == &DBUS_HUART)
 	{
-		if(DT7control_Receive(&rc, &dbus_dma_rx_buf[0]))
-		{
-			__HAL_UART_CLEAR_IDLEFLAG(&DBUS_HUART);
-			__HAL_UART_ENABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-		}
+        DT7control_Receive(&rc, dbus_dma_rx_buf);
+		HAL_UART_Receive_DMA(huart, dbus_dma_rx_buf, DT7_DATA_LEN);
 	}
 }
 
@@ -50,11 +59,7 @@ void USART_User_IRQHandler(UART_HandleTypeDef *huart)
 		//一帧数据接收完成
 		__HAL_UART_CLEAR_IDLEFLAG(huart);
 		HAL_UART_DMAStop(huart);
-		if(huart == &DBUS_HUART)
-		{
-			__HAL_UART_DISABLE_IT(&DBUS_HUART, UART_IT_IDLE);
-			HAL_UART_Receive_DMA(huart, dbus_dma_rx_buf, 2 * DT7_DATA_LEN);
-		}
+        USART_User_IDLECallback(huart);
 	}
 }
 

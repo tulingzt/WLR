@@ -25,10 +25,13 @@ const float LegLengthHigh = 0.30f;//长腿
 const float LegLengthNormal = 0.15;//正常
 float LegCanChange = 0.20f;
 
-float x3_balance_zero = 0.00, x5_balance_zero = -0.075f;//腿摆角角度偏置 机体俯仰角度偏置
+float x3_balance_zero = 0.03, x5_balance_zero = -0.075f;//腿摆角角度偏置 机体俯仰角度偏置
 
-//								位移		速度	角度	角速度  角度	角速度
-float K_Array_Leg[2][6] =		{{0, 10, 80, 8, 300, 10}, { 0, -0.7, -8, -1, 3, 2}};
+//								位移  速度	角度	角速度  角度	角速度
+//float K_Array_Leg[2][6] =		{{0, 10, 80, 8, 300, 10}, 
+//                                { 0, -0.7, -8, -1, 3, 2}};
+float K_Array_Leg[2][6] =		{{60, 30, 80, 8, 300, 10}, 
+                                { -4, -2, -8, -1, 3, 2}};
 float K_Array_Fly[2][6] =		{{0, 0, 80, 10, 0, 0}, { 0, 0, 0, 0, 0, 0}};
 float K_Array_test[2][6];
 float K_Array_List[12][4] = {{0.797097,-2.15505,1.83349,0.370208},
@@ -149,7 +152,9 @@ void WLR_Control(void)
 		lqr[i].dot_x4 = (lqr[i].X_fdb[3] - lqr[i].last_x4) / (CHASSIS_PERIOD_DU * 0.001f); //腿倾角加速度(状态变量x4的dot)计算
 		lqr[i].last_x4 = lqr[i].X_fdb[3];
 		Data_Limit(&lqr[i].X_fdb[0], 0.5f, -0.5f);//位移限幅  位移系数主要起到一个适应重心的作用 不用太大
-		if(ABS(wlr.v_set) > 1e-3f || ABS(lqr[i].X_fdb[1]) > 0.2f)//有输入速度 或 轮子速度还比较高时 将位移反馈置0  不发挥作用
+//		if(ABS(wlr.v_set) > 1e-3f || ABS(lqr[i].X_fdb[1]) > 0.2f)//有输入速度 或 轮子速度还比较高时 将位移反馈置0  不发挥作用
+//			lqr[i].X_fdb[0] = 0;
+        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f)//有输入速度 或 轮子速度还比较高时 将位移反馈置0  不发挥作用
 			lqr[i].X_fdb[0] = 0;
 		//支持力解算
 		float L0_array[3] = {vmc[i].L_fdb, vmc[i].V_fdb.e.vy0_fdb, vmc[i].Acc_fdb.L0_ddot};

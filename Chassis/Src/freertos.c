@@ -34,6 +34,7 @@
 //#include "printf.h"
 #include "wlr.h"
 #include "chassis_task.h"
+#include "debug_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +55,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 osThreadId chassis_task_t;
+osThreadId debug_task_t;
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
@@ -141,8 +143,8 @@ void MX_FREERTOS_Init(void) {
 	/**************************Normal priority task**************************/
 
 	/**************************Low priority task**************************/
-//	osThreadDef(debugTask, debug_task, osPriorityLow, 0, 512);
-//	debug_task_t = osThreadCreate(osThread(debugTask),NULL);
+	osThreadDef(debugTask, debug_task, osPriorityLow, 0, 512);
+	debug_task_t = osThreadCreate(osThread(debugTask),NULL);
   /* USER CODE END RTOS_THREADS */
 
 }

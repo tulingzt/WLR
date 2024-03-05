@@ -138,10 +138,10 @@ static void Chassis_Data_Input(void)
             wlr.yaw_set += 2 * PI;
         else if(wlr.yaw_set > 2 * PI)
             wlr.yaw_set -= 2 * PI;
-		wlr.wz_set = PID_Calc(&pid_yaw, wlr.yaw_set, wlr.yaw_set - Circle_Error(&wlr.yaw_set, &imu.yaw, PI));
+		wlr.wz_set = PID_Calc(&pid_yaw, wlr.yaw_set, wlr.yaw_set - Circle_Error(&wlr.yaw_set, &imu.yaw, 2 * PI));
 	}
-//	wlr.wz_set = -(float)rc.ch1/660*4;
-	wlr.v_set = (float)rc.ch2/660*4;
+//	wlr.wz_set = -(float)rc.ch1/660;
+	wlr.v_set = (float)rc.ch2/660;
 	//陀螺仪数据输入
 	wlr.roll_fdb	=  -imu.roll;
 	wlr.pit_fdb		=  imu.pitch;
