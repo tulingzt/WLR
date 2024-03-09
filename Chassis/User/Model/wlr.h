@@ -57,4 +57,6 @@ void WLR_Protest(void);
 void WLR_Control(void);
 void K_Array_Update(float K[2][6], float high_set);
 
+void K_Array_Updata2(float high_fdb, float q0_fdb);
+
 #endif
