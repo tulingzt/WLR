@@ -18,10 +18,10 @@ pid_t pid_yaw;
 static void Joint_Motor_Reset(void)
 {
 	uint32_t thread_wake_time = osKernelSysTick();
-	while(rc.sw1 == RC_MI || rc.sw1 == 0)
-	{
-		osDelayUntil(&thread_wake_time, 2);
-	}
+//	while(rc.sw1 == RC_MI || rc.sw1 == 0)
+//	{
+//		osDelayUntil(&thread_wake_time, 2);
+//	}
 	driver_motor[0].t = 0;
 	driver_motor[1].t = 0;
 	//标志位清零
@@ -141,7 +141,7 @@ static void Chassis_Data_Input(void)
 		wlr.wz_set = PID_Calc(&pid_yaw, wlr.yaw_set, wlr.yaw_set - Circle_Error(&wlr.yaw_set, &imu.yaw, 2 * PI));
 	}
 //	wlr.wz_set = -(float)rc.ch1/660;
-	wlr.v_set = (float)rc.ch2/660;
+	wlr.v_set = (float)rc.ch2/660*2;
 	//陀螺仪数据输入
 	wlr.roll_fdb	=  -imu.roll;
 	wlr.pit_fdb		=  imu.pitch;

@@ -22,30 +22,38 @@ const float LegLengthJump3 = 0.24f;//收腿
 const float LegLengthJump4 = 0.22f;//落地
 const float LegLengthFly = 0.20f;//腾空
 const float LegLengthHigh = 0.30f;//长腿
-const float LegLengthNormal = 0.15;//正常
-float LegCanChange = 0.20f;
+const float LegLengthNormal = 0.20f;//正常
+float LegCanChange = 0.30f;
 
 float x3_balance_zero = 0.03, x5_balance_zero = -0.075f;//腿摆角角度偏置 机体俯仰角度偏置
 
 //								位移  速度	角度	角速度  角度	角速度
+float K_Array_Wheel[2][6] =		{{60, 30, 80, 8, 300, 10}, 
+                                { -0, -0.7, -8, -1, 3, 2}};
 //float K_Array_Leg[2][6] =		{{0, 10, 80, 8, 300, 10}, 
 //                                { 0, -0.7, -8, -1, 3, 2}};
-float K_Array_Leg[2][6] =		{{60, 30, 80, 8, 300, 10}, 
-                                { -4, -2, -8, -1, 3, 2}};
+//float K_Array_Leg[2][6] =		{{60, 30, 80, 8, 300, 10}, 
+//                                { -4, -2.5, -8, -1, 3, 2}};
+//float K_Array_Leg[2][6] =		{{60, 30, 80, 8, 300, 10}, 
+//                                { -0, -0.7, -8, -1, 3, 2}};
+float K_Array_Leg[2][6] =		{{6.08535, 12.6636, 49.1418, 7.57203, 54.8073, 
+  12.7387}, {-0.793527, -1.75976, -13.1544, -1.78789, 4.8796, 
+  1.66868}};
 float K_Array_Fly[2][6] =		{{0, 0, 80, 10, 0, 0}, { 0, 0, 0, 0, 0, 0}};
 float K_Array_test[2][6];
-float K_Array_List[12][4] = {{0.797097,-2.15505,1.83349,0.370208},
-                            {27.8285,-75.0203,63.5743,13.2001},
-                            {18.0587,186.706,-705.858,761.812},
-                            {1.63162,33.6432,-91.428,85.1404},
-                            {2.88994,478.703,-1173.57,1038.},
-                            {-3.89182,63.0659,-150.771,131.948},
-                            {-0.0267526,-1.84735,4.54192,-4.0202},
-                            {-0.949843,-64.5161,158.061,-139.728},
-                            {-0.141779,-188.896,214.882,-110.629},
-                            {0.114695,-16.1936,-31.1215,37.3942},
-                            {40.7147,-106.452,87.1307,22.1354},
-                            {5.19391,-10.7512,6.66148,3.99882}};
+float K_Array_List[12][4] = 
+{{7.68012,-1.69684,-43.5662,60.9093},
+{16.6469,-10.8331,-65.3342,99.5026},
+{34.3366,210.496,-865.873,917.825},
+{7.23228,7.25271,-34.6399,34.5094},
+{36.9872,98.2124,-20.8582,-124.761},
+{5.55616,45.199,-46.6075,0.556525},
+{-0.607925,-0.846185,-0.984613,2.89844},
+{-1.50394,-0.423433,-6.27517,10.0366},
+{-6.2951,-44.5144,57.9034,-34.2354},
+{-1.42809,0.334929,-13.2375,12.7807},
+{6.72881,-7.2875,-15.4735,28.3466},
+{2.56242,-5.24235,3.84217,0.0953686}};
 //float K_Array_Leg[2][6] =       
 //{{1.89031, 15.0355, 78.4889, 10.3368, 250.04, 
 //  8.76237}, {-0.146364, -1.18306, -13.2436, -1.57301, 11.6865, 
@@ -126,6 +134,8 @@ void WLR_Protest(void)
 	pid_leg_length[1].i_out = 0;
 }
 
+float vmc_q0_diff;
+
 //轮子：位移、速度   摆角：角度、角速度   机体俯仰：角度、角速度
 void WLR_Control(void)
 {
@@ -154,7 +164,8 @@ void WLR_Control(void)
 		Data_Limit(&lqr[i].X_fdb[0], 0.5f, -0.5f);//位移限幅  位移系数主要起到一个适应重心的作用 不用太大
 //		if(ABS(wlr.v_set) > 1e-3f || ABS(lqr[i].X_fdb[1]) > 0.2f)//有输入速度 或 轮子速度还比较高时 将位移反馈置0  不发挥作用
 //			lqr[i].X_fdb[0] = 0;
-        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f)//有输入速度 或 轮子速度还比较高时 将位移反馈置0  不发挥作用
+        vmc_q0_diff = vmc[0].q_fdb[0] - vmc[1].q_fdb[0];
+        if(ABS(wlr.v_set) > 1e-3f || ABS(wlr.wz_set) > 0.1f || ABS(vmc[0].q_fdb[0] - vmc[1].q_fdb[0]) > 0.01f)//有输入速度 或 轮子速度还比较高时 将位移反馈置0  不发挥作用
 			lqr[i].X_fdb[0] = 0;
 		//支持力解算
 		float L0_array[3] = {vmc[i].L_fdb, vmc[i].V_fdb.e.vy0_fdb, vmc[i].Acc_fdb.L0_ddot};
@@ -218,15 +229,30 @@ void WLR_Control(void)
 	}
 	else if(wlr.side[0].fly_flag == 0 && wlr.side[1].fly_flag == 0)//在地面
 	{
-		if(!wlr.shift_mode)//正常情况
-		{
-			aMartix_Cover(lqr[0].K, (float*)K_Array_Leg, 2, 6);
-			aMartix_Cover(lqr[1].K, (float*)K_Array_Leg, 2, 6);
+//        if(!wlr.shift_mode)//正常情况
+//        {
+//            aMartix_Cover(lqr[0].K, (float*)K_Array_Leg, 2, 6);
+//            aMartix_Cover(lqr[1].K, (float*)K_Array_Leg, 2, 6);
+//        }
+//        else//加速
+//        {
+//            aMartix_Cover(lqr[0].K, (float*)K_Array_Leg, 2, 6);
+//            aMartix_Cover(lqr[1].K, (float*)K_Array_Leg, 2, 6);
+//        }
+        if(wlr.control_mode == 1)		//力控
+        {
+            K_Array_Update(K_Array_test, vmc[0].L_fdb);
+            aMartix_Cover(lqr[0].K, (float*)K_Array_test, 2, 6);
+            K_Array_Update(K_Array_test, vmc[1].L_fdb);
+			aMartix_Cover(lqr[1].K, (float*)K_Array_test, 2, 6);
+            
+//            aMartix_Cover(lqr[0].K, (float*)K_Array_Leg, 2, 6);
+//            aMartix_Cover(lqr[1].K, (float*)K_Array_Leg, 2, 6);
 		}
-		else//加速
+		else if(wlr.control_mode == 2)	//位控
 		{
-			aMartix_Cover(lqr[0].K, (float*)K_Array_Leg, 2, 6);
-			aMartix_Cover(lqr[1].K, (float*)K_Array_Leg, 2, 6);
+			aMartix_Cover(lqr[0].K, (float*)K_Array_Wheel, 2, 6);
+			aMartix_Cover(lqr[1].K, (float*)K_Array_Wheel, 2, 6);
 		}
 	}
 	//------------------------控制数据更新------------------------//
