@@ -27,7 +27,7 @@ typedef struct
 	//机械误差补偿
 	float q0_offs, roll_offs, wz_offs;
 	//限幅控制
-	float max_speed_error, max_stop_angle, max_wz_error;
+	float max_stop_angle, max_wz_error;
 	//控制标志
 	uint8_t jump_flag, jump_cnt, high_mode, shift_mode, stop_mode, control_mode;
 	//单侧控制参数
@@ -43,6 +43,7 @@ typedef struct
 		float P1, P4;
 		//中间数据
 		uint8_t fly_flag;
+        uint8_t fly_cnt;
 		float q0_kal, w0_kal, Fn_kal;
 		float Fn_fdb;
 		float T0, Fy;
@@ -51,12 +52,15 @@ typedef struct
 
 extern wlr_t wlr;
 extern lqr_t lqr[2];
+extern float LegCanChange;
+#include "pid.h"
+extern pid_t pid_leg_length[2];
 
 void WLR_Init(void);
 void WLR_Protest(void);
 void WLR_Control(void);
 void K_Array_Update(float K[2][6], float high_set);
 
-void K_Array_Updata2(float high_fdb, float q0_fdb);
+void K_Array_Updata_lq(float K[2][6], float high_fdb, float q0_fdb);
 
 #endif

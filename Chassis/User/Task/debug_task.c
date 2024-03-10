@@ -4,9 +4,11 @@
 #include "stdint.h"
 
 #include "wlr.h"
+#include "leg_vmc.h"
+#include "math_calcu.h"
 #include "Timu_driver.h"
 
-uint8_t debug_wave = 1;
+uint8_t debug_wave = 2;
 
 void DataWavePkg(void)
 {
@@ -14,10 +16,19 @@ void DataWavePkg(void)
 	{
 		case 1:
 		{
-			DataScope_Get_Channel_Data(wlr.yaw_set);
-			DataScope_Get_Channel_Data(imu.yaw);
+			DataScope_Get_Channel_Data(pid_leg_length[0].i_out);
+            DataScope_Get_Channel_Data(pid_leg_length[0].ref);
+			DataScope_Get_Channel_Data(pid_leg_length[0].fdb);
+            DataScope_Get_Channel_Data(vmc[0].q_fdb[0]);
 			break;
 		}
+        case 2:
+        {
+            DataScope_Get_Channel_Data(wlr.yaw_set);
+            DataScope_Get_Channel_Data(imu.yaw);
+            DataScope_Get_Channel_Data(Circle_Error(&wlr.yaw_set, &imu.yaw, 2 * PI));
+            DataScope_Get_Channel_Data(wlr.wz_set);
+        }
 		default:break;
 		
 	}

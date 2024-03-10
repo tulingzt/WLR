@@ -56,8 +56,6 @@
 /* USER CODE BEGIN Variables */
 osThreadId chassis_task_t;
 osThreadId debug_task_t;
-
-float L0, Q0;
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
@@ -169,7 +167,6 @@ void StartDefaultTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-      K_Array_Updata2(L0, Q0);
 //	ust_interval_test_start(&test_interval);
 ////	ust_delay(1000000);
 //	HAL_Delay(1000);

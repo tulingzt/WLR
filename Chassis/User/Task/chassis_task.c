@@ -118,8 +118,11 @@ static void Chassis_Data_Input(void)
 	else
 		wlr.stop_mode = 0;
 
-	if(rc.sw2 == RC_UP)         //大高度
+	if(rc.sw2 == RC_UP)         //可变高度
+    {
 		wlr.high_mode = 1;
+        LegCanChange += (float)rc.ch2/660/10000;
+    }
 	else
 		wlr.high_mode = 0;
 	
@@ -141,7 +144,7 @@ static void Chassis_Data_Input(void)
 		wlr.wz_set = PID_Calc(&pid_yaw, wlr.yaw_set, wlr.yaw_set - Circle_Error(&wlr.yaw_set, &imu.yaw, 2 * PI));
 	}
 //	wlr.wz_set = -(float)rc.ch1/660;
-	wlr.v_set = (float)rc.ch2/660*2;
+	wlr.v_set = (float)rc.ch4/660*2;
 	//陀螺仪数据输入
 	wlr.roll_fdb	=  -imu.roll;
 	wlr.pit_fdb		=  imu.pitch;
